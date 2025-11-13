@@ -1,16 +1,21 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, filedialog, Toplevel
 from PIL import Image, ImageTk
 import mariadb
+import shutil
 from Ventana_Animal import Ventana_Animales
 from Ventana_Predio import Ventana_Predios
+from Ventana_productor import Ventana_Productor
+import os
+import webbrowser   # se usa, estaba bien
 import sys
+from Ventana_RegistroSiniga import Ventana_registroSiniga
 
 APP_TITLE = 'GANA_CONTROL'
 WINDOW_SIZE = "900x600"
-BG = "#f4f3ec"
-ACCENT = "#36448B"
-ACCENT_DARK = "#2A3E75"
+BG = "#ceae93"
+ACCENT = "#79634C"
+ACCENT_DARK = "#C6AD85"
 TEXT_COLOR = "#222"
 
 # -------------------------------
@@ -67,6 +72,7 @@ class APP_BD(tk.Tk):
             img = img.resize((900, 180))
             self.banner_img = ImageTk.PhotoImage(img)
             tk.Label(banner_frame, image=self.banner_img, bg=ACCENT).pack(fill="x")
+
         except Exception:
             tk.Label(
                 banner_frame,
@@ -93,9 +99,9 @@ class APP_BD(tk.Tk):
         opciones = {
             "Animales": self.abrir_ventana_animales,
             "Predios": self.abrir_ventana_predio,
-            "Productor": lambda: messagebox.showinfo("Info", "Ventana Productor aún no implementada"),
+            "Productor": self.abrir_ventana_productores,
             "Pesaje": lambda: messagebox.showinfo("Info", "Ventana Pesaje aún no implementada"),
-            "Registro": lambda: messagebox.showinfo("Info", "Ventana Registro aún no implementada")
+            "Registro": self.abrir_ventana_siiniga
         }
 
         for texto, comando in opciones.items():
@@ -122,36 +128,96 @@ class APP_BD(tk.Tk):
 
     def tramites_botones(self):
         frame_central = tk.Frame(self, bg=BG)
-        frame_central.pack(expand=True,fill="both")
-        titulo = tk.Label(frame_central,
-                           text="tramites", 
-                           font=("Arial",28, "bold"),
-                           bg=BG,
-                           fg=ACCENT
-                           ).pack(pady=2)
+        frame_central.pack(expand=True, fill="both")
+
+        tk.Label(frame_central,
+            text="Tramites",
+            font=("Arial", 28, "bold"),
+            bg=BG,
+            fg=ACCENT
+        ).pack(pady=2)
 
         botones_frame = tk.Frame(frame_central, bg=BG)
         botones_frame.pack(pady=20)
 
         botones = [
-            ("Tramite 1", lambda:messagebox.showinfo("tramite", "Inice nuevo")),
-            ("Tramite 2", lambda:messagebox.showinfo("tramite", "Inice nuevo")),
-            ("Tramite 3", lambda:messagebox.showinfo("tramite", "Inice nuevo"))
+            ("Inscripción UPP", self.opciones_upp),
+            ("Trámites Datos", lambda: messagebox.showinfo("Trámite", "Inicie nuevo")),
+            ("Trámite 3", lambda: messagebox.showinfo("Trámite", "Inicie nuevo"))
         ]
+
         for texto, comando in botones:
-            botones = tk.Button(
+            btn = tk.Button(
                 botones_frame,
                 text=texto,
                 font=("Arial", 14, "bold"),
                 bg=ACCENT,
-                width=20, 
-                height= 2, 
+                width=20,
+                height=2,
                 relief="flat",
                 command=comando
             )
-            botones.pack(pady=10)
+            btn.pack(pady=10)
 
- 
+    def descargar_inscrip(self):
+        ruta_pdf = "solicitud_pgn.pdf"
+
+        ruta_destino = filedialog.asksaveasfilename(   # corregido asksaveasfilename
+            defaultextension="*.pdf",
+            filetypes=[("PDF Files", "*.pdf")],
+            title="Guardar como"
+        )
+
+        if ruta_destino:
+            try:
+                shutil.copyfile(ruta_pdf, ruta_destino)
+                messagebox.showinfo("Correcto", "Archivo guardado correctamente ✅")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo guardar:\n{e}")
+
+    def abrir_inscrip(self):
+        ruta_pdf = "solicitud_pgn.pdf"
+        if os.path.exists(ruta_pdf):
+            webbrowser.open(ruta_pdf)  #  corregido
+        else:
+            messagebox.showerror("Error", "No existe el archivo")
+
+    def opciones_upp(self):
+        ventana = Toplevel(self)
+        ventana.title("Opciones de inscripción UPP")
+        ventana.geometry("400x300")
+        ventana.config(background="#DCC197")
+
+        tk.Label(
+            ventana,
+            text="Seleccione la opción preferente",
+            bg="#DCC197",
+            font=("Comic Sans MS", 10, "bold"),
+            wraplength=350,
+            justify="center"
+        ).pack(pady=(20, 10))
+
+        buton_frame = tk.Frame(ventana, bg=BG)
+        buton_frame.pack(pady=20)
+
+        botones = [
+            ("Abrir solicitud PDF", self.abrir_inscrip),
+            ("Descargar solicitud PDF", self.descargar_inscrip),
+        ]
+
+        for texto, comando in botones:
+            btn = tk.Button(
+                buton_frame,
+                text=texto,
+                font=("Arial", 14, "bold"),
+                bg=ACCENT,
+                width=22,
+                height=2,
+                relief="flat",
+                command=comando
+            )
+            btn.pack(pady=10)
+
     def abrir_ventana_animales(self):
         ventana_animales = Ventana_Animales(self)
         ventana_animales.grab_set()
@@ -160,6 +226,17 @@ class APP_BD(tk.Tk):
         ventana_predio = Ventana_Predios(self)
         ventana_predio.grab_set()
 
+    def abrir_ventana_productores(self):
+        ventana_productor = Ventana_Productor(self)
+        ventana_productor.grab_set()
+    
+    def abrir_ventana_siiniga(self):
+        ventana_siiniga = Ventana_registroSiniga(self)
+        ventana_siiniga.grab_set
+
+    def abrir_ventana_pesaje(self):
+        ventana_pesaje = Ventana_registroSiniga(self)
+        ventana_pesaje.grab_set()
 
 # -------------------------------
 # Programa principal

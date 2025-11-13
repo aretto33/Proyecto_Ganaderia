@@ -8,7 +8,7 @@ import subprocess
 
 
 APP_TITLE = 'GANA_CONTROL'
-WINDOW_SIZE = "900x600"
+WINDOW_SIZE = "1500x1000"
 BG = "#f4f3ec"
 ACCENT = "#36448B"
 ACCENT_DARK = "#2A3E75"
